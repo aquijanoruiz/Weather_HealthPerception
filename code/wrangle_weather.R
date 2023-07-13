@@ -127,7 +127,7 @@ ensanut_2012 <- read_dta("data/ensanut/ensanut_f1_personas.dta")
 # Ensanut 2018 ----------
 # Load the Ensanut 2018 data
 # Source: https://www.ecuadorencifras.gob.ec/salud-salud-reproductiva-y-nutricion/
-unzip("data/INEC_ENSANUT/ENSANUT.zip", exdir = "data/ensanut")
+unzip("data/INEC_ENSANUT/ENSANUT.zip", exdir = "data/INEC_ENSANUT")
 ensanut_2018 <- read_dta("data/ensanut/1_BDD_ENS2018_f1_personas.dta")
 
 # Select the person and parish ids, as well as the survey dates
