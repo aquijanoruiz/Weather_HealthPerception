@@ -145,11 +145,11 @@ precip_person_2018 <- match_weather(ensanut_2018, precip_parish_2018, precip_par
                                     date_to_match = ensanut_2018$survey_date, suffix = "precip")
 
 # Put everything together
-weather_data_2018 <- tmax_person_2018 %>% left_join(tmin_person_2018, by = "person_id") %>%
+weather_data_clean_2018 <- tmax_person_2018 %>% left_join(tmin_person_2018, by = "person_id") %>%
   left_join(precip_person_2018, by = "person_id")
 
 # Save data as RData
-save(weather_data_2018, file = "data/weather_data_2018.RData")
+save(weather_data_clean_2018, file = "data/weather_data_clean_2018.RData")
 
 # Ensanut 2012 ----------
 # Load the Ensanut 2012 data
@@ -170,8 +170,8 @@ precip_person_2012 <- match_weather(ensanut_2012, precip_parish_2012, precip_par
                                     date_to_match = ensanut_2012$survey_date, suffix = "precip")
 
 # Put everything together
-weather_data_2012 <- tmax_person_2012 %>% left_join(tmin_person_2012, by = "person_id") %>%
+weather_data_clean_2012 <- tmax_person_2012 %>% left_join(tmin_person_2012, by = "person_id") %>%
   left_join(precip_person_2012, by = "person_id")
 
 # Save data as RData
-save(weather_data_2012, file = "data/weather_data_2012.RData")
+save(weather_data_clean_2012, file = "data/weather_data_clean_2012.RData")
