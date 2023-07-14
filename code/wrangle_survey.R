@@ -1,3 +1,7 @@
+# This R script contains data processing and cleaning operations for the Ensanut 2018 and Ensanut 2012
+# datasets. It loads the datasets, performs data transformations, merges variables, and saves the cleaned 
+# data in separate RData files for each survey year.
+
 # Version: Jul 23, 2023
 # Author: Alonso Quijano-Ruiz
 
