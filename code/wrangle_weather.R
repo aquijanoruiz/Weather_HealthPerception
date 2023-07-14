@@ -127,15 +127,11 @@ match_weather <- function(x, y1, y2, prepost_date = c(-7:7), date_to_match, suff
   return(matched_weather)
 }
 
-# Merge and match Ensanut survey dates with the weather data 
-
-ensanut_2012 <- read_dta("data/ensanut/ensanut_f1_personas.dta")
-
 # Ensanut 2018 ----------
 # Load the Ensanut 2018 data
 # Source: https://www.ecuadorencifras.gob.ec/salud-salud-reproductiva-y-nutricion/
 unzip("data/INEC_ENSANUT/ENSANUT.zip", exdir = "data/INEC_ENSANUT")
-ensanut_2018 <- read_dta("data/ensanut/1_BDD_ENS2018_f1_personas.dta")
+ensanut_2018 <- read_dta("data/INEC_ENSANUT/1_BDD_ENS2018_f1_personas.dta")
 
 # Select the person and parish ids, as well as the survey dates
 ensanut_2018 <- ensanut_2018 %>% 
@@ -160,7 +156,7 @@ save(weather_data_clean_2018, file = "data/weather_data_clean_2018.RData")
 
 # Ensanut 2012 ----------
 # Load the Ensanut 2012 data
-ensanut_2012 <- read_dta("data/ensanut/ensanut_f1_personas.dta")
+ensanut_2012 <- read_dta("data/INEC_ENSANUT/ensanut_f1_personas.dta")
 
 # Select the person and parish ids, as well as the survey dates
 ensanut_2012 <- ensanut_2012 %>%
