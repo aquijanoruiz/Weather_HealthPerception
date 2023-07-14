@@ -117,10 +117,10 @@ levels(ensanut_home_2018$walls) <-
 
 ## Put everything together --------------------
 # Merge the ensanut_person_2018 with the ensanut_home_2018 dataset
-survey_data_clean_2018 <- ensanut_person_2018 %>% 
+survey_clean_2018 <- ensanut_person_2018 %>% 
   left_join(select(ensanut_home_2018, home_id, ceiling, floor, walls), by = "home_id")
 
-survey_data_clean_2018 <- survey_data_clean_2018 %>% select(
+survey_clean_2018 <- survey_clean_2018 %>% select(
   # home infrastructure and demographic variables
    home_id, person_id, psu, strata, weight, survey_date, survey_year, survey_month, survey_day, 
    survey_weekday, survey_round, region, province_id, canton_id, parish_id, ceiling, floor, walls, 
@@ -129,7 +129,7 @@ survey_data_clean_2018 <- survey_data_clean_2018 %>% select(
    disability_id, sick, got_care, prev_care, hospitalized, good_health, better_health)
 
 # Save data as RData
-save(survey_data_clean_2018, file = "data/survey_data_clean_2018.RData")
+save(survey_clean_2018, file = "data/survey_clean_2018.RData")
 
 # Ensanut 2012 --------------------
 # Load the Ensanut 2012 individual and household data
@@ -245,10 +245,10 @@ ensanut_home_2012$hot_water <- as.integer(ensanut_home_2012$vi2013 == 1 | ensanu
 
 ## Put everything together --------------------
 # Merge the ensanut_person_2012 with the ensanut_home_2012 dataset
-survey_data_clean_2012 <- ensanut_person_2012 %>% 
+survey_clean_2012 <- ensanut_person_2012 %>% 
   left_join(select(ensanut_home_2012, home_id, ceiling, floor, walls, ac, fan, hot_water), by = "home_id")
 
-survey_data_clean_2012 <- survey_data_clean_2012 %>% select(
+survey_clean_2012 <- survey_clean_2012 %>% select(
   # home infrastructure and demographic variables
   home_id, person_id, weight, survey_date, survey_year, survey_month, survey_day, survey_weekday, 
   survey_round, region, province_id, canton_id, parish_id, ceiling, floor, walls, ac, fan, hot_water, 
@@ -257,4 +257,4 @@ survey_data_clean_2012 <- survey_data_clean_2012 %>% select(
   sick, got_care, prev_care, hospitalized, good_health, better_health)
 
 # Save data as RData
-save(survey_data_clean_2012, file = "data/survey_data_clean_2012.RData")
+save(survey_clean_2012, file = "data/survey_clean_2012.RData")
