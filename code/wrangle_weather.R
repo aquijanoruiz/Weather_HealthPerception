@@ -1,3 +1,10 @@
+# This R script loads shapefiles for Ecuador's parishes, extracts temperature and precipitation data 
+# for each parish from NOAA global datasets for specific years, and matches the weather data with survey 
+# dates from the Ensanut surveys of 2012 and 2018, creating clean weather data sets for each year.
+
+# Version: Jul 22, 2023
+# Author: Alonso Quijano-Ruiz
+
 # Load packages
 if (!require(tidyverse)) install.packages("tidyverse")
 if (!require(sf)) install.packages("sf")
