@@ -36,8 +36,8 @@ ensanut_person_2018 <- ensanut_person_2018 %>% mutate(
   survey_date = as.Date(paste(fecha_anio, fecha_mes, fecha_dia, sep = "-")),
   survey_weekday = factor(weekdays(survey_date, abbreviate = TRUE), 
                           levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")),
-  survey_wave = factor(ifelse(survey_date >= as.Date("2019-06-08"),"wave2", "wave1"), 
-                       levels = c("wave1","wave2")))
+  survey_round = factor(ifelse(survey_date < as.Date("2019-06-08"),"round 1", "round 2"), 
+                       levels = c("round 1","round 2")))
 
 # Region
 ensanut_person_2018$region <- as_factor(ensanut_person_2018$region)
@@ -122,11 +122,11 @@ survey_data_clean_2018 <- ensanut_person_2018 %>%
 
 survey_data_clean_2018 <- survey_data_clean_2018 %>% select(
   # home infrastructure and demographic variables
-  home_id, person_id, psu, strata, weight, survey_date, survey_year, survey_month, survey_day, 
-  survey_weekday, survey_wave, region, province_id, canton_id, parish_id, ceiling, floor, walls, 
-  sex, age, ethnicity, marital_status, education, enrolled_in_school, employed,
-  # health variables
-  disability_id, sick, got_care, prev_care, hospitalized, good_health, better_health)
+   home_id, person_id, psu, strata, weight, survey_date, survey_year, survey_month, survey_day, 
+   survey_weekday, survey_round, region, province_id, canton_id, parish_id, ceiling, floor, walls, 
+   sex, age, ethnicity, marital_status, education, enrolled_in_school, employed,
+   # health variables
+   disability_id, sick, got_care, prev_care, hospitalized, good_health, better_health)
 
 # Save data as RData
 save(survey_data_clean_2018, file = "data/survey_data_clean_2018.RData")
@@ -140,8 +140,8 @@ ensanut_person_2012_labels <- var_label(ensanut_person_2012)
 
 # Unique identifier
 ensanut_person_2012$person_id <- ensanut_person_2012$idpers
-ensanut_person_2012$home_id <- ensanut_person_2012$idhog
-ensanut_home_2012$home_id <- ensanut_home_2012$idhog
+ensanut_person_2012$home_id <- as.character(ensanut_person_2012$idhog)
+ensanut_home_2012$home_id <- as.character(ensanut_home_2012$idhog)
 
 # Survey weight
 ensanut_person_2012$weight <- ensanut_person_2012$pw
@@ -153,7 +153,8 @@ ensanut_person_2012 <- ensanut_person_2012 %>% mutate(
   survey_day = dia,
   survey_date = as.Date(paste(anio, mes, dia, sep = "-")),
   survey_weekday = factor(weekdays(survey_date, abbreviate = TRUE), 
-                          levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")))
+                          levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")),
+  survey_round = "round 1")
 
 # Region
 ensanut_person_2012$region <- as_factor(ensanut_person_2012$subreg)
@@ -162,7 +163,7 @@ levels(ensanut_person_2012$region) <-
 
 # Province, canton, and parish
 ensanut_person_2012 <- ensanut_person_2012 %>%
-  mutate(province_id = prov, canton_id = ciudad,
+  mutate(province_id = prov, canton_id = as.character(ciudad),
          parish_id = case_when(prov >= 10 ~ as.character(ciudad), prov < 10 ~ paste(0, ciudad, sep = "")))
 
 ## Demographic variables --------------------
@@ -250,8 +251,8 @@ survey_data_clean_2012 <- ensanut_person_2012 %>%
 survey_data_clean_2012 <- survey_data_clean_2012 %>% select(
   # home infrastructure and demographic variables
   home_id, person_id, weight, survey_date, survey_year, survey_month, survey_day, survey_weekday, 
-  region, province_id, canton_id, parish_id, ceiling, floor, walls, ac, fan, hot_water, sex, age, 
-  ethnicity, marital_status, education, enrolled_in_school, employed,
+  survey_round, region, province_id, canton_id, parish_id, ceiling, floor, walls, ac, fan, hot_water, 
+  sex, age, ethnicity, marital_status, education, enrolled_in_school, employed,
   # health variables
   sick, got_care, prev_care, hospitalized, good_health, better_health)
 
