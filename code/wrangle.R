@@ -1,6 +1,6 @@
 # The script sources two separate scripts: "wrangle_survey.R" and "wrangle_weather.R". It merges 
 # the cleaned survey data with the cleaned weather data for the 2018 and 2012 Ensanut waves.
-# The code takes around three minutes to run.
+# The code takes around several minutes to run.
 
 # Version: July 14, 2018
 # Author: Alonso Quijano-Ruiz
@@ -10,10 +10,10 @@ if(!require(haven)) install.packages("haven")
 if(!require(tidyverse)) install.packages("tidyverse")
 
 # Load and process the survey data
-source("code/wrangle_survey.R")
+source("code/survey.R")
 
 # Load and process the weather data
-source("code/wrangle_weather.R")
+source("code/weather.R")
 
 # Merge cleaned survey data with weather data for the 2018 and 2012 Ensanut waves
 Weather_HealthPerceiption_data <- bind_rows(
