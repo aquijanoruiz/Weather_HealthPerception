@@ -25,4 +25,4 @@ save(Weather_HealthPerceiption, file = "data/Weather_HealthPerceiption_data.RDat
 write_dta(Weather_HealthPerceiption_data, path = "data/Weather_HealthPerceiption_data.dta")
 
 # Compress to zip file
-zip(files = "data/Weather_HealthPerceiption_data.dta", zipfile =  "data/Weather_HealthPerceiption_data.zip")
+zip(files = "data/Weather_HealthPerceiption_data.dta", zipfile =  "data/Weather_HealthPerceiption_data.dta.zip")
