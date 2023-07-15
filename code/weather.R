@@ -54,10 +54,10 @@ extract_weather <- function(x) {
 
 ## Maximum temperature ----------
 # Load NOAA global max temperature data
-tmax_2019 <- rast("data/NOAA_temperature/tmax.2019.nc")
-tmax_2018 <- rast("data/NOAA_temperature/tmax.2018.nc")
-tmax_2013 <- rast("data/NOAA_temperature/tmax.2013.nc")
-tmax_2012 <- rast("data/NOAA_temperature/tmax.2012.nc")
+tmax_2019 <- rast("data/NOAA_weather/tmax.2019.nc")
+tmax_2018 <- rast("data/NOAA_weather/tmax.2018.nc")
+tmax_2013 <- rast("data/NOAA_weather/tmax.2013.nc")
+tmax_2012 <- rast("data/NOAA_weather/tmax.2012.nc")
 
 # The SpatRaster CRS is WGS 84. Because it is the same as the sf object, projection is not needed
 print(tmax_2019)
@@ -70,10 +70,10 @@ tmax_parish_2012 <- extract_weather(tmax_2012)
 
 ## Minimum temperature ----------
 # Load NOAA global min temperature data
-tmin_2019 <- rast("data/NOAA_temperature/tmin.2019.nc")
-tmin_2018 <- rast("data/NOAA_temperature/tmin.2018.nc")
-tmin_2013 <- rast("data/NOAA_temperature/tmin.2013.nc")
-tmin_2012 <- rast("data/NOAA_temperature/tmin.2012.nc")
+tmin_2019 <- rast("data/NOAA_weather/tmin.2019.nc")
+tmin_2018 <- rast("data/NOAA_weather/tmin.2018.nc")
+tmin_2013 <- rast("data/NOAA_weather/tmin.2013.nc")
+tmin_2012 <- rast("data/NOAA_weather/tmin.2012.nc")
 
 # Extract the weighted mean temperature for each parish for each day
 tmin_parish_2019 <- extract_weather(tmin_2019)
