@@ -13,9 +13,9 @@ if(!require(tidyverse)) install.packages("tidyverse")
 # Ensanut 2018 --------------------
 # Load the Ensanut 2018 individual and household data
 # Source: https://www.ecuadorencifras.gob.ec/salud-salud-reproductiva-y-nutricion/
-unzip("data/INEC_ENSANUT/ENSANUT.zip", exdir = "data/INEC_ENSANUT")
-ensanut_home_2018 <- read_dta("data/INEC_ENSANUT/2_BDD_ENS2018_f1_hogar.dta")
-ensanut_person_2018 <- read_dta("data/INEC_ENSANUT/1_BDD_ENS2018_f1_personas.dta")
+unzip("data/ENSANUT.zip", exdir = "data")
+ensanut_home_2018 <- read_dta("data/2_BDD_ENS2018_f1_hogar.dta")
+ensanut_person_2018 <- read_dta("data/1_BDD_ENS2018_f1_personas.dta")
 ensanut_home_2018_labels <- var_label(ensanut_home_2018)
 ensanut_person_2018_labels <- var_label(ensanut_person_2018)
 
@@ -38,6 +38,8 @@ ensanut_person_2018 <- ensanut_person_2018 %>% mutate(
 # Region
 ensanut_person_2018$region <- as_factor(ensanut_person_2018$region)
 levels(ensanut_person_2018$region) <- c("Sierra", "Coast", "Amazon", "Galapagos")
+ensanut_person_2018$region <- 
+  factor(ensanut_person_2018$region, levels = c("Coast", "Sierra", "Amazon", "Galapagos"))
 
 # Province, canton, and parish
 ensanut_person_2018 <- ensanut_person_2018 %>% mutate(
@@ -54,10 +56,14 @@ ensanut_person_2018$age <- ensanut_person_2018$edadanios
 # Ethnicity
 ensanut_person_2018$ethnicity <- as_factor(ensanut_person_2018$etnia)
 levels(ensanut_person_2018$ethnicity) <- c("indigenous", "black", "non-minority", "non-minority", "non-minority")
+ensanut_person_2018$ethnicity <- 
+  factor(ensanut_person_2018$ethnicity, levels = c("non-minority", "indigenous", "black"))
 
 # Marital status
 ensanut_person_2018$marital_status <- as_factor(ensanut_person_2018$estado_civil)
 levels(ensanut_person_2018$marital_status) <- c("partnered", "non-partnered", "non-partnered")
+ensanut_person_2018$marital_status <- 
+  factor(ensanut_person_2018$marital_status, levels = c("non-partnered", "partnered"))
 
 # Educational attainment
 ensanut_person_2018$education <- as_factor(ensanut_person_2018$f1_s2_19_1)
@@ -126,8 +132,8 @@ survey_clean_2018 <- survey_clean_2018 %>% select(
 
 # Ensanut 2012 --------------------
 # Load the Ensanut 2012 individual and household data
-ensanut_home_2012 <- read_dta("data/INEC_ENSANUT/ensanut_f1_vivienda.dta")
-ensanut_person_2012 <- read_dta("data/INEC_ENSANUT/ensanut_f1_personas.dta")
+ensanut_home_2012 <- read_dta("data/ensanut_f1_vivienda.dta")
+ensanut_person_2012 <- read_dta("data/ensanut_f1_personas.dta")
 ensanut_home_2012_labels <- var_label(ensanut_home_2012)
 ensanut_person_2012_labels <- var_label(ensanut_person_2012)
 
@@ -150,6 +156,8 @@ ensanut_person_2012 <- ensanut_person_2012 %>% mutate(
 ensanut_person_2012$region <- as_factor(ensanut_person_2012$subreg)
 levels(ensanut_person_2012$region) <- 
   c("Sierra", "Sierra", "Coast", "Coast", "Amazon", "Amazon", "Galapagos", "Coast", "Sierra")
+ensanut_person_2012$region <- 
+  factor(ensanut_person_2012$region, levels = c("Coast", "Sierra", "Amazon", "Galapagos"))
 
 # Province, canton, and parish
 ensanut_person_2012 <- ensanut_person_2012 %>%
@@ -167,10 +175,14 @@ ensanut_person_2012$age <- ensanut_person_2012$edadanio
 # Ethnicity
 ensanut_person_2012$ethnicity <- as_factor(ensanut_person_2012$gr_etn)
 levels(ensanut_person_2012$ethnicity) <- c("indigenous", "black", "non-minority", "non-minority", "non-minority")
+ensanut_person_2012$ethnicity <- 
+  factor(ensanut_person_2012$ethnicity, levels = c("non-minority", "indigenous", "black"))
 
 # Marital status
 ensanut_person_2012$marital_status <- as_factor(ensanut_person_2012$estado_civil)
 levels(ensanut_person_2012$marital_status) <- c("partnered", "non-partnered", "non-partnered", "non-partnered")
+ensanut_person_2012$marital_status <- 
+  factor(ensanut_person_2012$marital_status, levels = c("non-partnered", "partnered"))
 
 # Educational attainment
 ensanut_person_2012$education <- as_factor(ensanut_person_2012$pd19a)
