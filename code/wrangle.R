@@ -1,5 +1,5 @@
-# The script sources two separate scripts: "wrangle_survey.R" and "wrangle_weather.R". It merges 
-# the cleaned survey data with the cleaned weather data for the 2018 and 2012 Ensanut waves.
+# The script sources two separate scripts: "survey.R" and "weather.R". It merges the 
+# cleaned survey data with the cleaned weather data for the 2018 and 2012 Ensanut waves. 
 # The code takes around several minutes to run.
 
 # Version: July 14, 2018
