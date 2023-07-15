@@ -14,7 +14,8 @@ if (!require(haven)) install.packages("haven")
 # Ecuador shapefile ----------
 # Source: https://gadm.org/
 # Load Ecuador parish shapefiles
-ecuador_shp <- st_read("data/Shapefiles/gadm41_ECU_3.shp")
+unzip("data/Shapefiles.zip", exdir = "data")
+ecuador_shp <- st_read("data/gadm41_ECU_3.shp")
 ecuador_shp <- st_simplify(ecuador_shp, preserveTopology = TRUE, dTolerance = 100)
 
 # The sf CRS is WGS 84
@@ -53,10 +54,10 @@ extract_weather <- function(x) {
 
 ## Maximum temperature ----------
 # Load NOAA global max temperature data
-tmax_2019 <- rast("data/NOAA_weather/tmax.2019.nc")
-tmax_2018 <- rast("data/NOAA_weather/tmax.2018.nc")
-tmax_2013 <- rast("data/NOAA_weather/tmax.2013.nc")
-tmax_2012 <- rast("data/NOAA_weather/tmax.2012.nc")
+tmax_2019 <- rast("data/NOAA_temperature/tmax.2019.nc")
+tmax_2018 <- rast("data/NOAA_temperature/tmax.2018.nc")
+tmax_2013 <- rast("data/NOAA_temperature/tmax.2013.nc")
+tmax_2012 <- rast("data/NOAA_temperature/tmax.2012.nc")
 
 # The SpatRaster CRS is WGS 84. Because it is the same as the sf object, projection is not needed
 print(tmax_2019)
@@ -69,10 +70,10 @@ tmax_parish_2012 <- extract_weather(tmax_2012)
 
 ## Minimum temperature ----------
 # Load NOAA global min temperature data
-tmin_2019 <- rast("data/NOAA_weather/tmin.2019.nc")
-tmin_2018 <- rast("data/NOAA_weather/tmin.2018.nc")
-tmin_2013 <- rast("data/NOAA_weather/tmin.2013.nc")
-tmin_2012 <- rast("data/NOAA_weather/tmin.2012.nc")
+tmin_2019 <- rast("data/NOAA_temperature/tmin.2019.nc")
+tmin_2018 <- rast("data/NOAA_temperature/tmin.2018.nc")
+tmin_2013 <- rast("data/NOAA_temperature/tmin.2013.nc")
+tmin_2012 <- rast("data/NOAA_temperature/tmin.2012.nc")
 
 # Extract the weighted mean temperature for each parish for each day
 tmin_parish_2019 <- extract_weather(tmin_2019)
@@ -96,7 +97,7 @@ precip_parish_2013 <- extract_weather(precip_2013)
 precip_parish_2012 <- extract_weather(precip_2012)
 
 # Create a function to merge and match the survey dates with the weather data ----------
-match_weather <- function(x, y1, y2, prepost_date = c(-7:7), date_to_match, suffix) {
+match_weather <- function(x, y1, y2, prepost_date = c(-3:3), date_to_match, suffix) {
   
   # Merge survey data with weather data using the parish id
   z <- left_join(select(x,  parish_id), y1, by = "parish_id") %>% left_join(y2, by = "parish_id") %>%
@@ -130,8 +131,8 @@ match_weather <- function(x, y1, y2, prepost_date = c(-7:7), date_to_match, suff
 # Ensanut 2018 ----------
 # Load the Ensanut 2018 data
 # Source: https://www.ecuadorencifras.gob.ec/salud-salud-reproductiva-y-nutricion/
-unzip("data/INEC_ENSANUT/ENSANUT.zip", exdir = "data/INEC_ENSANUT")
-ensanut_2018 <- read_dta("data/INEC_ENSANUT/1_BDD_ENS2018_f1_personas.dta")
+unzip("data/ENSANUT.zip", exdir = "data")
+ensanut_2018 <- read_dta("data/1_BDD_ENS2018_f1_personas.dta")
 
 # Select the person and parish ids, as well as the survey dates
 ensanut_2018 <- ensanut_2018 %>% 
@@ -153,7 +154,7 @@ weather_clean_2018 <- tmax_person_2018 %>% left_join(tmin_person_2018, by = "per
 
 # Ensanut 2012 ----------
 # Load the Ensanut 2012 data
-ensanut_2012 <- read_dta("data/INEC_ENSANUT/ensanut_f1_personas.dta")
+ensanut_2012 <- read_dta("data/ensanut_f1_personas.dta")
 
 # Select the person and parish ids, as well as the survey dates
 ensanut_2012 <- ensanut_2012 %>%
