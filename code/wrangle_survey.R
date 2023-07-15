@@ -30,13 +30,10 @@ ensanut_person_2018 <- mutate(ensanut_person_2018, psu = upm, strata = estrato, 
 
 # Survey date
 ensanut_person_2018 <- ensanut_person_2018 %>% mutate(
-  survey_year = fecha_anio,
-  survey_month = fecha_mes,
-  survey_day = fecha_dia,
   survey_date = as.Date(paste(fecha_anio, fecha_mes, fecha_dia, sep = "-")),
   survey_weekday = factor(weekdays(survey_date, abbreviate = TRUE), 
                           levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")),
-  survey_round = factor(ifelse(survey_date < as.Date("2019-06-08"),"round 1", "round 2"), 
+  survey_round = factor(ifelse(survey_date < as.Date("2019-06-08"), "round 1", "round 2"), 
                        levels = c("round 1","round 2")))
 
 # Region
@@ -122,14 +119,11 @@ survey_clean_2018 <- ensanut_person_2018 %>%
 
 survey_clean_2018 <- survey_clean_2018 %>% select(
   # home infrastructure and demographic variables
-   home_id, person_id, psu, strata, weight, survey_date, survey_year, survey_month, survey_day, 
-   survey_weekday, survey_round, region, province_id, canton_id, parish_id, ceiling, floor, walls, 
+   home_id, person_id, psu, strata, weight, survey_date, survey_weekday, survey_round, 
+   region, province_id, canton_id, parish_id, ceiling, floor, walls, 
    sex, age, ethnicity, marital_status, education, enrolled_in_school, employed,
    # health variables
    disability_id, sick, got_care, prev_care, hospitalized, good_health, better_health)
-
-# Save data as RData
-save(survey_clean_2018, file = "data/survey_clean_2018.RData")
 
 # Ensanut 2012 --------------------
 # Load the Ensanut 2012 individual and household data
@@ -148,9 +142,6 @@ ensanut_person_2012$weight <- ensanut_person_2012$pw
 
 # Survey date
 ensanut_person_2012 <- ensanut_person_2012 %>% mutate(
-  survey_year = anio,
-  survey_month = mes,
-  survey_day = dia,
   survey_date = as.Date(paste(anio, mes, dia, sep = "-")),
   survey_weekday = factor(weekdays(survey_date, abbreviate = TRUE), 
                           levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")),
@@ -250,11 +241,8 @@ survey_clean_2012 <- ensanut_person_2012 %>%
 
 survey_clean_2012 <- survey_clean_2012 %>% select(
   # home infrastructure and demographic variables
-  home_id, person_id, weight, survey_date, survey_year, survey_month, survey_day, survey_weekday, 
-  survey_round, region, province_id, canton_id, parish_id, ceiling, floor, walls, ac, fan, hot_water, 
+  home_id, person_id, weight, survey_date, survey_weekday, survey_round, region, 
+  province_id, canton_id, parish_id, ceiling, floor, walls, ac, fan, hot_water, 
   sex, age, ethnicity, marital_status, education, enrolled_in_school, employed,
   # health variables
   sick, got_care, prev_care, hospitalized, good_health, better_health)
-
-# Save data as RData
-save(survey_clean_2012, file = "data/survey_clean_2012.RData")

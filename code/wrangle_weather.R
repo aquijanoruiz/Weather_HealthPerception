@@ -151,9 +151,6 @@ precip_person_2018 <- match_weather(ensanut_2018, precip_parish_2018, precip_par
 weather_clean_2018 <- tmax_person_2018 %>% left_join(tmin_person_2018, by = "person_id") %>%
   left_join(precip_person_2018, by = "person_id")
 
-# Save data as RData
-save(weather_clean_2018, file = "data/weather_clean_2018.RData")
-
 # Ensanut 2012 ----------
 # Load the Ensanut 2012 data
 ensanut_2012 <- read_dta("data/INEC_ENSANUT/ensanut_f1_personas.dta")
@@ -175,6 +172,3 @@ precip_person_2012 <- match_weather(ensanut_2012, precip_parish_2012, precip_par
 # Put everything together
 weather_clean_2012 <- tmax_person_2012 %>% left_join(tmin_person_2012, by = "person_id") %>%
   left_join(precip_person_2012, by = "person_id")
-
-# Save data as RData
-save(weather_clean_2012, file = "data/weather_clean_2012.RData")
