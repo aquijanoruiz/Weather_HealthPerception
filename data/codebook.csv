@@ -1,0 +1,33 @@
+﻿home_id,Household unique identifier
+person_id,Person unique identifier
+psu,Primary sampling unit
+strata,Strata
+weight,Survey weight
+survey_date,Survey date
+survey_weekday,Survey weekday
+survey_round,Survey round
+region,Region
+province_id,Province code
+canton_id,Canton code
+parish_id,Parish code
+ceiling,Predominant material of the ceiling
+floor,Predominant material of the floor
+walls,Predominant material of the walls
+sex,Sex
+age,Age
+ethnicity,Ethnicity
+marital_status,Marital status
+education,Educational attainment
+enrolled_in_school,1 if the person is enrolled in school
+disability_id,1 if the person has a disability id
+sick,1 if the person suffered from an illness in the past 30 days
+got_care,1 if the person received care in the past 30 days
+prev_care,1 if the person received preventive care in the past 30 days
+hospitalized,1 if the person has been hospitalized in the past year
+good_health,1 if the person considers themself in good health
+better_health,1 if the person considers themself in better health compared to the previous year
+employed,1 if the person is employed
+survey_wave,Survey wave
+ac,1 if the household owns an air conditioner
+fan,1 if the household owns a fan
+hot_water,1 if the household has hot water system
