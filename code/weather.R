@@ -118,7 +118,7 @@ for (i in 1:length(weather_files)) {
 prepost_date = c(-3:3)
 
 # Create the match_weather function
-match_weather <- function(x, y_1, y_2, date_to_match = ensanut_2018$survey_date, suffix) {
+match_weather <- function(x, y_1, y_2, date_to_match, suffix) {
   
   # Merge survey data with weather data, remove the parish_id column and transform to a matrix
   z <- left_join(select(x,  id), y_1, by = "id") %>% left_join(y_2, by = "id") %>%
