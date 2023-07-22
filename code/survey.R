@@ -96,8 +96,8 @@ ensanut_person_2018$f1_s3_17 <- -ensanut_person_2018$f1_s3_17
 ensanut_person_2018$indiv_income <- rowSums(ensanut_person_2018[,index_income], na.rm = TRUE)
 
 # Calculate household income per capita
-ensanut_person_2018$income_percap <- ensanut_person_2018 %>% group_by(home_id) %>% 
-  mutate(income_percap = sum(indiv_income/n()))
+ensanut_person_2018 <- ensanut_person_2018 %>% group_by(home_id) %>% 
+  mutate(income_percap = sum(indiv_income, na.rm = TRUE)/n())
 
 ## Health variables --------------------
 # Disability id -> 1 if the person has a disability id
