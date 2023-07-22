@@ -27,6 +27,7 @@ hospitalized,1 if the person has been hospitalized in the past year
 good_health,1 if the person considers themself in good health
 better_health,1 if the person considers themself in better health compared to the previous year
 employed,1 if the person is employed
+income_percap,Household income per capita
 survey_wave,Survey wave
 ac,1 if the household owns an air conditioner
 fan,1 if the household owns a fan
