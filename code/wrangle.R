@@ -19,6 +19,10 @@ source("code/weather.R")
 Weather_HealthPerception_2018data <- left_join(survey_clean_2018, weather_clean_2018, by = "person_id")
 Weather_HealthPerception_2012data <- left_join(survey_clean_2012, weather_clean_2012, by = "person_id")
 
+# Remove Spanish variable labels
+Weather_HealthPerception_2018data <- remove_labels(Weather_HealthPerception_2018data)
+Weather_HealthPerception_2012data <- remove_labels(Weather_HealthPerception_2012data)
+
 # Save data as RData and dta
 save(Weather_HealthPerception_2018data, file = "data/Weather_HealthPerception_2018data.RData")
 write_dta(Weather_HealthPerception_2018data, path = "data/Weather_HealthPerception_2018data.dta")
