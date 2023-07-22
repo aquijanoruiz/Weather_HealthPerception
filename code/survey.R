@@ -220,7 +220,7 @@ ensanut_person_2012 <- ensanut_person_2012 %>% mutate(
 
 # Household income per capita
 ensanut_person_2012 <- ensanut_person_2012 %>% group_by(home_id) %>% 
-  mutate(income_percap = sum(pa08/n()))
+  mutate(income_percap = sum(pa08, na.rm = TRUE)/n())
 
 ## Health variables --------------------
 # Disability id -> 1 if the person has a disability id
