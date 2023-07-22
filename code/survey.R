@@ -4,11 +4,15 @@
 # Version: Jul 23, 2023
 # Author: Alonso Quijano-Ruiz
 
-# Load libraries
+# Install packages if necessary
 if(!require(haven)) install.packages("haven")
 if(!require(labelled)) install.packages("labelled")
-if (!require(sf)) install.packages("sf")
 if(!require(tidyverse)) install.packages("tidyverse")
+
+# Load packages
+library(haven)
+library(labelled)
+library(tidyverse)
 
 # Ensanut 2018 --------------------
 # Load the Ensanut 2018 individual and household data
@@ -77,6 +81,24 @@ ensanut_person_2018$enrolled_in_school <- as.integer(ensanut_person_2018$f1_s2_1
 ensanut_person_2018 <- ensanut_person_2018 %>% mutate(
   employed = case_when(is.na(f1_s3_1) ~ NA_real_, f1_s3_1 == 1 ~ 1, f1_s3_2 != 12 ~ 1, f1_s3_3 == 1 ~ 1, TRUE ~ 0))
 
+# Household income per capita
+# Column index of income variables
+index_income <- c("f1_s3_15", "f1_s3_16_2", "f1_s3_17", # income from self-employment
+                  "f1_s3_18", "f1_s3_19", "f1_s3_20_2", # wage/salary + benefits
+                  "f1_s3_21", "f1_s3_22_2", # secondary employment income (self-employment + wage/salary)
+                  "f1_s3_23_2", #  rental, investments and other non-employment income
+                  "f1_s3_24_2", "f1_s3_25_2", "f1_s3_26_2", "f1_s3_28_1", "f1_s3_30_1") # cash & disability transfers
+
+# Change business expenses to negative values
+ensanut_person_2018$f1_s3_17 <- -ensanut_person_2018$f1_s3_17
+
+# Calculate individual income
+ensanut_person_2018$indiv_income <- rowSums(ensanut_person_2018[,index_income], na.rm = TRUE)
+
+# Calculate household income per capita
+ensanut_person_2018$income_percap <- ensanut_person_2018 %>% group_by(home_id) %>% 
+  mutate(income_percap = sum(indiv_income/n()))
+
 ## Health variables --------------------
 # Disability id -> 1 if the person has a disability id
 # Sick -> 1 if the person suffered from an illness in the past 30 days
@@ -125,8 +147,8 @@ survey_clean_2018 <- ensanut_person_2018 %>%
 survey_clean_2018 <- survey_clean_2018 %>% select(
   # home infrastructure and demographic variables
    home_id, person_id, psu, strata, weight, survey_date, survey_weekday, survey_round, 
-   region, province_id, canton_id, parish_id, ceiling, floor, walls, 
-   sex, age, ethnicity, marital_status, education, enrolled_in_school, employed,
+   region, province_id, canton_id, parish_id, ceiling, floor, walls, sex, age, ethnicity, 
+   marital_status, education, enrolled_in_school, employed, income_percap,
    # health variables
    disability_id, sick, got_care, prev_care, hospitalized, good_health, better_health)
 
@@ -196,6 +218,10 @@ ensanut_person_2012$enrolled_in_school <- as.integer(ensanut_person_2012$pd16 ==
 ensanut_person_2012 <- ensanut_person_2012 %>% mutate(
   employed = case_when(is.na(pa01) ~ NA_real_, pa01 == 6 | pa01 == 7 ~ 1, TRUE ~ 0))
 
+# Household income per capita
+ensanut_person_2012 <- ensanut_person_2012 %>% group_by(home_id) %>% 
+  mutate(income_percap = sum(pa08/n()))
+
 ## Health variables --------------------
 # Disability id -> 1 if the person has a disability id
 # Sick -> 1 if the person suffered from an illness in the past 30 days
@@ -254,6 +280,6 @@ survey_clean_2012 <- survey_clean_2012 %>% select(
   # home infrastructure and demographic variables
   home_id, person_id, weight, survey_date, survey_weekday, survey_round, region, 
   province_id, canton_id, parish_id, ceiling, floor, walls, ac, fan, hot_water, 
-  sex, age, ethnicity, marital_status, education, enrolled_in_school, employed,
+  sex, age, ethnicity, marital_status, education, enrolled_in_school, employed, income_percap,
   # health variables
   sick, got_care, prev_care, hospitalized, good_health, better_health)
