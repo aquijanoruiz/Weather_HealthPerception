@@ -50,9 +50,8 @@ ensanut_person_2018 <- ensanut_person_2018 %>% mutate(
   province_id = as.numeric(prov), canton_id = substr(upm, 1, 4), parish_id = substr(upm, 1, 6))
 
 ## Demographic variables --------------------
-# Sex
-ensanut_person_2018$sex <- as_factor(ensanut_person_2018$sexo)
-levels(ensanut_person_2018$sex) <- c("male", "female")
+# Female -> 1 if the person is a female
+ensanut_person_2018$female <- as.integer(ensanut_person_2018$sexo == 2)
 
 # Age
 ensanut_person_2018$age <- ensanut_person_2018$edadanios
@@ -147,7 +146,7 @@ survey_clean_2018 <- ensanut_person_2018 %>%
 survey_clean_2018 <- survey_clean_2018 %>% select(
   # home infrastructure and demographic variables
    home_id, person_id, psu, strata, weight, survey_date, survey_weekday, survey_round, 
-   region, province_id, canton_id, parish_id, ceiling, floor, walls, sex, age, ethnicity, 
+   region, province_id, canton_id, parish_id, ceiling, floor, walls, female, age, ethnicity, 
    marital_status, education, enrolled_in_school, employed, income_percap,
    # health variables
    disability_id, sick, got_care, prev_care, hospitalized, good_health, better_health)
@@ -187,9 +186,8 @@ ensanut_person_2012 <- ensanut_person_2012 %>%
          parish_id = case_when(prov >= 10 ~ as.character(ciudad), prov < 10 ~ paste(0, ciudad, sep = "")))
 
 ## Demographic variables --------------------
-# Sex
-ensanut_person_2012$sex <- as_factor(ensanut_person_2012$pd02)
-levels(ensanut_person_2012$sex) <- c("male", "female")
+# Female -> 1 if the person is a female
+ensanut_person_2012$female <- as.integer(ensanut_person_2012$pd02 == 2)
 
 # Age
 ensanut_person_2012$age <- ensanut_person_2012$edadanio
@@ -280,6 +278,6 @@ survey_clean_2012 <- survey_clean_2012 %>% select(
   # home infrastructure and demographic variables
   home_id, person_id, weight, survey_date, survey_weekday, survey_round, region, 
   province_id, canton_id, parish_id, ceiling, floor, walls, ac, fan, hot_water, 
-  sex, age, ethnicity, marital_status, education, enrolled_in_school, employed, income_percap,
+  female, age, ethnicity, marital_status, education, enrolled_in_school, employed, income_percap,
   # health variables
   sick, got_care, prev_care, hospitalized, good_health, better_health)
