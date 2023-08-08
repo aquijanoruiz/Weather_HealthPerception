@@ -24,7 +24,7 @@ unzip("data/ensanut_zip", exdir = "data")
 ensanut_2018 <- read_dta("data/1_BDD_ENS2018_f1_personas.dta")
 ensanut_2012 <- read_dta("data/ensanut_f1_personas.dta")
 
-# Select the person and parish ids, as well as the survey dates for each survey
+# Select the person and parish IDs, as well as the survey dates for each survey
 ensanut_2018 <- ensanut_2018 %>% 
   transmute(person_id = id_per, 
             parish_id = substr(upm, 1, 6),
@@ -162,7 +162,7 @@ tmax_person_2012 <- match_weather(ensanut_2012, tmax.2012, tmax.2013, "tmax")
 tmin_person_2012 <- match_weather(ensanut_2012, tmin.2012, tmin.2013, "tmin")
 precip_person_2012 <- match_weather(ensanut_2012, precip.2012, precip.2013, "precip")
 
-# Extreme weather dummy --------------------
+# Extreme weather dummies --------------------
 # This section calculates extreme weather conditions for each parish based on the average daily 
 # maximum temperature and precipitation.
 
@@ -204,13 +204,17 @@ extreme_weather <- extreme_weather %>% mutate(
 )
 
 # Put everything together --------------------
+# Join the matched weather data for 2018 and add the extreme weather dummy variables
 weather_clean_2018 <- tmax_person_2018 %>% 
   left_join(tmin_person_2018, by = "person_id") %>%
   left_join(precip_person_2018, by = "person_id") %>% 
+  
+  # Add the parish IDs to join the extreme weather dummy variables
   mutate(parish_id = ensanut_2018$parish_id) %>%
   left_join(extreme_weather, by = "parish_id") %>%
   select(-parish_id)
 
+# Join the matched weather data for 2012 and add the extreme weather dummy variables
 weather_clean_2012 <- tmax_person_2012 %>% 
   left_join(tmin_person_2012, by = "person_id") %>%
   left_join(precip_person_2012, by = "person_id") %>% 
