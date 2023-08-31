@@ -14,10 +14,10 @@ library(tidyverse)
 library(labelled)
 
 # Load and process the survey data
-source("code/survey.R")
+source("code/survey_draft.R")
 
 # Load and process the weather data
-source("code/weather.R")
+source("code/weather_draft.R")
 
 # Merge the cleaned survey data with the weather data for the 2018 and 2012 Ensanut waves
 Weather_HealthPerception_2018 <- left_join(survey_clean_2018, weather_clean_2018, by = "person_id")
@@ -32,7 +32,7 @@ Weather_HealthPerception_2018 <- Weather_HealthPerception_2018 %>% select(
   # survey variables
   survey_date, survey_round, psu, strata, weight,
   # weather variables
-  starts_with(c("tmax", "tmin", "precip")), hot_parish_84, hot_parish_q3, rainy_parish_84, rainy_parish_q3
+  starts_with(c("tmax", "tmin", "tavg", "precip")), hot_parish_84, hot_parish_q3, rainy_parish_84, rainy_parish_q3
 )
 
 Weather_HealthPerception_2012 <- Weather_HealthPerception_2012 %>% select(
@@ -43,7 +43,7 @@ Weather_HealthPerception_2012 <- Weather_HealthPerception_2012 %>% select(
   # survey variables
   survey_date, weight,
   # weather variables
-  starts_with(c("tmax", "tmin", "precip")), hot_parish_84, hot_parish_q3, rainy_parish_84, rainy_parish_q3
+  starts_with(c("tmax", "tmin", "tavg", "precip")), hot_parish_84, hot_parish_q3, rainy_parish_84, rainy_parish_q3
 )
 
 # Remove the variable labels
