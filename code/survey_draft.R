@@ -179,7 +179,8 @@ levels(ensanut_person_2012$region) <-
 
 # Province, canton, and parish
 ensanut_person_2012 <- ensanut_person_2012 %>%
-  mutate(province_id = prov, canton_id = as.character(ciudad),
+  mutate(province_id = prov, 
+         canton_id = case_when(prov >= 10 ~ substr(ciudad, 1,4), prov < 10 ~ paste(0, substr(ciudad, 1,3), sep = "")),
          parish_id = case_when(prov >= 10 ~ as.character(ciudad), prov < 10 ~ paste(0, ciudad, sep = "")))
 
 ## Demographic variables --------------------

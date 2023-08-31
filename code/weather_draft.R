@@ -27,11 +27,13 @@ ensanut_2012 <- read_dta("data/ensanut_f1_personas.dta")
 # Select the person and parish IDs, as well as the survey dates for each survey
 ensanut_2018 <- ensanut_2018 %>% 
   transmute(person_id = id_per, 
+            canton_id = substr(upm, 1, 4),
             parish_id = substr(upm, 1, 6),
             survey_date = as.Date(paste(fecha_anio, fecha_mes, fecha_dia, sep = "-")))
 
 ensanut_2012 <- ensanut_2012 %>%
   transmute(person_id = idpers,
+            canton_id = case_when(prov >= 10 ~ substr(ciudad, 1,4), prov < 10 ~ paste(0, substr(ciudad, 1,3), sep = "")),
             parish_id = case_when(prov >= 10 ~ as.character(ciudad), prov < 10 ~ paste(0, ciudad, sep = "")),
             survey_date = as.Date(paste(anio, mes, dia, sep = "-")))
 
@@ -68,10 +70,10 @@ weather_urls <- c(
   "https://downloads.psl.noaa.gov//Datasets/cpc_global_precip/precip.2012.nc"
 )
 
-# Create file paths for downloaded data
+# Create file paths for the downloaded data
 weather_paths <- file.path("data", basename(weather_urls))
 
-# Download weather data files and save them with corresponding file names
+# Download the weather data files and save them with corresponding file names
 download.file(weather_urls, destfile = weather_paths, mode = "wb")
 
 # Extracts the temperature/precipitation for each parish for each day --------------------
@@ -162,62 +164,135 @@ tmax_person_2012 <- match_weather(ensanut_2012, tmax.2012, tmax.2013, "tmax")
 tmin_person_2012 <- match_weather(ensanut_2012, tmin.2012, tmin.2013, "tmin")
 precip_person_2012 <- match_weather(ensanut_2012, precip.2012, precip.2013, "precip")
 
-# Extreme weather dummies --------------------
-# This section calculates extreme weather conditions for each parish based on the average daily 
+# Calculate the average temperature for 2018
+weather_clean_2018 <- tmax_person_2018 %>% left_join(tmin_person_2018, by = "person_id") %>%
+  mutate(across(
+    starts_with("tmax"),
+    list(tavg = ~ (. + get(gsub("tmax", "tmin", cur_column()))) / 2),
+    .names = "{.fn}{.col}"
+  )) |> 
+  rename_with(~ gsub("tmax", "", .x), starts_with("tavg"))
+
+# Join the temperature data with the precipitation data
+weather_clean_2018 <- weather_clean_2018 %>% left_join(precip_person_2018, by = "person_id") 
+
+# Calculate the average temperature for 2012
+weather_clean_2012 <- tmax_person_2012 %>% 
+  left_join(tmin_person_2012, by = "person_id") %>%
+  mutate(across(
+    starts_with("tmax"),
+    list(tavg = ~ (. + get(gsub("tmax", "tmin", cur_column()))) / 2),
+    .names = "{.fn}{.col}"
+  )) |> 
+  rename_with(~ gsub("tmax", "", .x), starts_with("tavg"))
+
+# Join the temperature data with the precipitation data
+weather_clean_2012 <- tmax_person_2012 %>% left_join(precip_person_2012, by = "person_id")
+
+# Hot canton dummies --------------------
+# Load Ecuador canton shapefiles
+unzip("data/Shapefiles.zip", exdir = "data")
+canton_shp <- st_read("data/gadm41_ECU_2.shp")
+canton_shp <- st_simplify(canton_shp, preserveTopology = TRUE, dTolerance = 100)
+canton_shp <- canton_shp %>% select(CC_2) %>% rename(canton_id = CC_2)
+
+# Calculate the mean daily maximum temperature for each canton in 2018
+canton_tmax_2018 <- rast("data/tmax.2018.nc")
+canton_tmax_2018 <- rotate(canton_tmax_2018)
+canton_tmax_2018 <- crop(canton_tmax_2018, canton_shp, mask = TRUE)
+names <- names(canton_tmax_2018)
+time <- time(canton_tmax_2018)
+canton_tmax_2018 <- extract(canton_tmax_2018, canton_shp, fun = mean, na.rm = TRUE, weights = TRUE, bind = TRUE)
+canton_tmax_2018 <- as_tibble(canton_tmax_2018)
+names(canton_tmax_2018)[names(canton_tmax_2018) %in% names] <- as.character(as.Date(time))
+
+canton_tmax_2018$tmax_mean <- rowMeans(canton_tmax_2018[,2:ncol(canton_tmax_2018)])
+canton_tmax_2018 <- select(canton_tmax_2018, canton_id, tmax_mean)
+
+# hot_canton: Cantons whose mean daily maximum temperature above the 75th percentile
+canton_tmax_2018 <- canton_tmax_2018 %>% 
+  mutate(hot_canton = ifelse(tmax_mean >= quantile(tmax_mean, 0.75, na.rm = TRUE), 1, 0))
+
+# Rainy canton dummies --------------------
+# Calculate the mean daily precipitation for each canton in 2018
+canton_precip_2018 <- rast("data/precip.2018.nc")
+canton_precip_2018 <- rotate(canton_precip_2018)
+canton_precip_2018 <- crop(canton_precip_2018, canton_shp, mask = TRUE)
+names <- names(canton_precip_2018)
+time <- time(canton_precip_2018)
+canton_precip_2018 <- extract(canton_precip_2018, canton_shp, fun = mean, na.rm = TRUE, weights = TRUE, bind = TRUE)
+canton_precip_2018 <- as_tibble(canton_precip_2018)
+names(canton_precip_2018)[names(canton_precip_2018) %in% names] <- as.character(as.Date(time))
+
+canton_precip_2018$precip_mean <- rowMeans(canton_precip_2018[,2:ncol(canton_precip_2018)])
+canton_precip_2018 <- select(canton_precip_2018, canton_id, precip_mean)
+
+# hot_canton: Cantons whose mean daily precipitation above the 75th percentile
+canton_precip_2018 <- canton_precip_2018 %>% 
+  mutate(rainy_canton = ifelse(precip_mean >= quantile(precip_mean, 0.75, na.rm = TRUE), 1, 0))
+
+# Hot/rainy parish dummies --------------------
+# This section calculates extreme weather conditions for each parish based on the average daily
 # maximum temperature and precipitation.
 
 # Calculate the mean daily maximum temperature for each parish in 2018
-extreme_weather <- 
+extreme_parish <-
   tibble(parish_id = tmax.2018$parish_id,
          parish_tmax_mean = rowMeans(tmax.2018[,2:ncol(tmax.2018)]))
 
-# Calculate the mean, standard deviation, and 75th percentile (third quartile) of the mean daily 
+# Calculate the mean, standard deviation, and 75th percentile (third quartile) of the mean daily
 # maximum temperature for all parishes in 2018
-mean_tmax_2018 <- mean(extreme_weather$parish_tmax_mean, na.rm = TRUE)
-sd_tmax_2018 <- sd(extreme_weather$parish_tmax_mean, na.rm = TRUE)
-q3_tmax_2018 <- quantile(extreme_weather$parish_tmax_mean, 0.75, na.rm = TRUE)
+mean_tmax_2018 <- mean(extreme_parish$parish_tmax_mean, na.rm = TRUE)
+sd_tmax_2018 <- sd(extreme_parish$parish_tmax_mean, na.rm = TRUE)
+q3_tmax_2018 <- quantile(extreme_parish$parish_tmax_mean, 0.75, na.rm = TRUE)
 
 # Identify extreme temperature parishes using two criteria:
 # - hot_parish_84: Parishes with mean daily maximum temperature above the mean + 1 standard deviation
 # - hot_parish_q3: Parishes with mean daily maximum temperature above the 75th percentile
-extreme_weather <- extreme_weather %>% mutate(
+extreme_parish <- extreme_parish %>% mutate(
   hot_parish_84 = ifelse(parish_tmax_mean >= mean_tmax_2018 + sd_tmax_2018, 1, 0),
   hot_parish_q3 = ifelse(parish_tmax_mean >= q3_tmax_2018, 1, 0)
 )
 
 # Calculate the mean daily precipitation for each parish in 2018
-extreme_weather <- extreme_weather %>%
+extreme_parish <- extreme_parish %>%
   mutate(parish_precip_mean = rowMeans(precip.2018[,2:ncol(precip.2018)]))
 
-# Calculate the mean, standard deviation, and 75th percentile (third quartile) of the mean daily 
+# Calculate the mean, standard deviation, and 75th percentile (third quartile) of the mean daily
 # precipitation for all parishes in 2018
-mean_precip_2018 <- mean(extreme_weather$parish_precip_mean, na.rm = TRUE)
-sd_precip_2018 <- sd(extreme_weather$parish_precip_mean, na.rm = TRUE)
-q3_precip_2018 <- quantile(extreme_weather$parish_precip_mean, 0.75, na.rm = TRUE)
+mean_precip_2018 <- mean(extreme_parish$parish_precip_mean, na.rm = TRUE)
+sd_precip_2018 <- sd(extreme_parish$parish_precip_mean, na.rm = TRUE)
+q3_precip_2018 <- quantile(extreme_parish$parish_precip_mean, 0.75, na.rm = TRUE)
 
 # Identify extreme precipitation parishes using two criteria:
 # - rainy_parish_84: Parishes with mean daily precipitation above the mean + 1 standard deviation
 # - rainy_parish_q3: Parishes with mean daily precipitation above the 75th percentile
-extreme_weather <- extreme_weather %>% mutate(
+extreme_parish <- extreme_parish %>% mutate(
   rainy_parish_84 = ifelse(parish_precip_mean >= mean_precip_2018 + sd_precip_2018, 1, 0),
   rainy_parish_q3 = ifelse(parish_precip_mean >= q3_precip_2018, 1, 0)
 )
 
 # Put everything together --------------------
 # Join the matched weather data for 2018 and add the extreme weather dummy variables
-weather_clean_2018 <- tmax_person_2018 %>% 
-  left_join(tmin_person_2018, by = "person_id") %>%
-  left_join(precip_person_2018, by = "person_id") %>% 
-  
+weather_clean_2018 <- weather_clean_2018 %>%
   # Add the parish IDs to join the extreme weather dummy variables
   mutate(parish_id = ensanut_2018$parish_id) %>%
-  left_join(extreme_weather, by = "parish_id") %>%
-  select(-parish_id)
+  left_join(extreme_parish, by = "parish_id") %>%
+  select(-parish_id) %>%
+  # Add the canton IDs to join the extreme weather dummy variables
+  mutate(canton_id = ensanut_2018$canton_id) %>%
+  left_join(canton_tmax_2018, by = "canton_id") %>%
+  left_join(canton_precip_2018, by = "canton_id") %>%
+  select(-canton_id)
 
 # Join the matched weather data for 2012 and add the extreme weather dummy variables
-weather_clean_2012 <- tmax_person_2012 %>% 
-  left_join(tmin_person_2012, by = "person_id") %>%
-  left_join(precip_person_2012, by = "person_id") %>% 
+weather_clean_2012 <- weather_clean_2012 %>%
+  # Add the parish IDs to join the extreme weather dummy variables
   mutate(parish_id = ensanut_2012$parish_id) %>%
-  left_join(extreme_weather, by = "parish_id") %>%
-  select(-parish_id)
+  left_join(extreme_parish, by = "parish_id") %>%
+  select(-parish_id) %>%
+  # Add the canton IDs to join the extreme weather dummy variables
+  mutate(canton_id = ensanut_2012$canton_id) %>%
+  left_join(canton_tmax_2018, by = "canton_id") %>%
+  left_join(canton_precip_2018, by = "canton_id") %>%
+  select(-canton_id)
