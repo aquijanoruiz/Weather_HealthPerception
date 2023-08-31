@@ -32,7 +32,8 @@ Weather_HealthPerception_2018 <- Weather_HealthPerception_2018 %>% select(
   # survey variables
   survey_date, survey_round, psu, strata, weight,
   # weather variables
-  starts_with(c("tmax", "tmin", "tavg", "precip")), hot_parish_84, hot_parish_q3, rainy_parish_84, rainy_parish_q3
+  starts_with(c("tmax", "tmin", "tavg", "precip")), 
+  hot_parish_84, hot_parish_q3, rainy_parish_84, rainy_parish_q3, hot_canton, rainy_canton
 )
 
 Weather_HealthPerception_2012 <- Weather_HealthPerception_2012 %>% select(
@@ -43,7 +44,8 @@ Weather_HealthPerception_2012 <- Weather_HealthPerception_2012 %>% select(
   # survey variables
   survey_date, weight,
   # weather variables
-  starts_with(c("tmax", "tmin", "tavg", "precip")), hot_parish_84, hot_parish_q3, rainy_parish_84, rainy_parish_q3
+  starts_with(c("tmax", "tmin", "tavg", "precip")), 
+  hot_parish_84, hot_parish_q3, rainy_parish_84, rainy_parish_q3, hot_canton, rainy_canton
 )
 
 # Remove the variable labels
