@@ -115,7 +115,7 @@ for (i in 1:length(weather_files)) {
 }
 
 # Merge and match the survey dates with the weather data --------------------
-# Define the dates before and after the survey for with weather data will also be extracted
+# Define the dates before and after the survey for which weather data will also be extracted
 prepost_date = c(-3:3)
 
 # Create the match_weather function
@@ -178,11 +178,11 @@ sd_tmax_2018 <- sd(extreme_weather$parish_tmax_mean, na.rm = TRUE)
 q3_tmax_2018 <- quantile(extreme_weather$parish_tmax_mean, 0.75, na.rm = TRUE)
 
 # Identify extreme temperature parishes using two criteria:
-# - extreme_tmax_84: Parishes with mean daily maximum temperature above the mean + 1 standard deviation
-# - extreme_tmax_q3: Parishes with mean daily maximum temperature above the 75th percentile
+# - hot_parish_84: Parishes with mean daily maximum temperature above the mean + 1 standard deviation
+# - hot_parish_q3: Parishes with mean daily maximum temperature above the 75th percentile
 extreme_weather <- extreme_weather %>% mutate(
-  extreme_tmax_84 = ifelse(parish_tmax_mean >= mean_tmax_2018 + sd_tmax_2018, 1, 0),
-  extreme_tmax_q3 = ifelse(parish_tmax_mean >= q3_tmax_2018, 1, 0)
+  hot_parish_84 = ifelse(parish_tmax_mean >= mean_tmax_2018 + sd_tmax_2018, 1, 0),
+  hot_parish_q3 = ifelse(parish_tmax_mean >= q3_tmax_2018, 1, 0)
 )
 
 # Calculate the mean daily precipitation for each parish in 2018
@@ -196,11 +196,11 @@ sd_precip_2018 <- sd(extreme_weather$parish_precip_mean, na.rm = TRUE)
 q3_precip_2018 <- quantile(extreme_weather$parish_precip_mean, 0.75, na.rm = TRUE)
 
 # Identify extreme precipitation parishes using two criteria:
-# - extreme_precip_84: Parishes with mean daily precipitation above the mean + 1 standard deviation
-# - extreme_precip_q3: Parishes with mean daily precipitation above the 75th percentile
+# - rainy_parish_84: Parishes with mean daily precipitation above the mean + 1 standard deviation
+# - rainy_parish_q3: Parishes with mean daily precipitation above the 75th percentile
 extreme_weather <- extreme_weather %>% mutate(
-  extreme_precip_84 = ifelse(parish_precip_mean >= mean_precip_2018 + sd_precip_2018, 1, 0),
-  extreme_precip_q3 = ifelse(parish_precip_mean >= q3_precip_2018, 1, 0)
+  rainy_parish_84 = ifelse(parish_precip_mean >= mean_precip_2018 + sd_precip_2018, 1, 0),
+  rainy_parish_q3 = ifelse(parish_precip_mean >= q3_precip_2018, 1, 0)
 )
 
 # Put everything together --------------------

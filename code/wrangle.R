@@ -19,11 +19,34 @@ source("code/survey.R")
 # Load and process the weather data
 source("code/weather.R")
 
-# Merge cleaned survey data with weather data for the 2018 and 2012 Ensanut waves
+# Merge the cleaned survey data with the weather data for the 2018 and 2012 Ensanut waves
 Weather_HealthPerception_2018 <- left_join(survey_clean_2018, weather_clean_2018, by = "person_id")
 Weather_HealthPerception_2012 <- left_join(survey_clean_2012, weather_clean_2012, by = "person_id")
 
-# Remove Spanish variable labels
+# Select the variables
+Weather_HealthPerception_2018 <- Weather_HealthPerception_2018 %>% select(
+  # demographic variables
+  home_id, person_id, region, province_id, canton_id, parish_id, sex, age, ethnicity, education, income_percap,
+  # health variables
+  good_health, better_health, sick, got_care, prev_care, hospitalized,
+  # survey variables
+  survey_date, survey_round, psu, strata, weight,
+  # weather variables
+  starts_with(c("tmax", "tmin", "precip")), hot_parish_84, hot_parish_q3, rainy_parish_84, rainy_parish_q3
+)
+
+Weather_HealthPerception_2012 <- Weather_HealthPerception_2012 %>% select(
+  # demographic variables
+  home_id, person_id, region, province_id, canton_id, parish_id, sex, age, ethnicity, education, income_percap,
+  # health variables
+  good_health, better_health, sick, got_care, prev_care, hospitalized,
+  # survey variables
+  survey_date, weight,
+  # weather variables
+  starts_with(c("tmax", "tmin", "precip")), hot_parish_84, hot_parish_q3, rainy_parish_84, rainy_parish_q3
+)
+
+# Remove the variable labels
 Weather_HealthPerception_2018 <- remove_labels(Weather_HealthPerception_2018)
 Weather_HealthPerception_2012 <- remove_labels(Weather_HealthPerception_2012)
 
