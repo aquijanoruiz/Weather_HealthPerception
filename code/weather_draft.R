@@ -2,7 +2,7 @@
 # for each parish from NOAA global datasets for specific years, and matches the weather data with survey 
 # dates from the Ensanut surveys of 2012 and 2018, creating clean weather data sets for each year.
 
-# Version: Aug 7, 2023
+# Version: Sep 24, 2023
 # Author: Alonso Quijano-Ruiz
 
 # Install packages if necessary
@@ -41,14 +41,14 @@ ensanut_2012 <- ensanut_2012 %>%
 # Source: https://gadm.org/
 # Load Ecuador parish shapefiles
 unzip("data/Shapefiles.zip", exdir = "data")
-ecuador_shp <- st_read("data/gadm41_ECU_3.shp")
-ecuador_shp <- st_simplify(ecuador_shp, preserveTopology = TRUE, dTolerance = 100)
+parish_shp <- st_read("data/ecuador_parroquias.shp")
+parish_shp <- st_simplify(parish_shp, preserveTopology = TRUE, dTolerance = 100)
 
 # The sf CRS is WGS 84
-head(ecuador_shp)
+head(parish_shp)
 
 # Select the parish id
-ecuador_shp <- ecuador_shp %>% select(CC_3) %>% rename(parish_id = CC_3)
+parish_shp <- parish_shp %>% select(DPA_PARROQ) %>% rename(parish_id = DPA_PARROQ)
 
 # NOAA weather data --------------------
 # https://psl.NOAA.gov/data/gridded/data.cpc.globaltemp.html
@@ -86,15 +86,18 @@ extract_weather <- function(x) {
   # Rotate the SpatRaster to standard coordinates between -180 and 180 degrees
   x <- rotate(x)
   
+  # Reproject the shapefile to match the raster's CRS
+  parish_shp <- st_transform(parish_shp, crs(x))
+  
   # Mask the SpatRaster using the shapefile
-  x <- crop(x, ecuador_shp, mask = TRUE)
+  x <- crop(x, parish_shp, mask = TRUE)
   
   # Extract the layer names and time
   names <- names(x)
   time <- time(x)
   
   # Extract the weighted mean temperature for each parish
-  x <- extract(x, ecuador_shp, fun = mean, na.rm = TRUE, weights = TRUE, bind = TRUE)
+  x <- extract(x, parish_shp, fun = mean, na.rm = TRUE, weights = TRUE, bind = TRUE)
   
   # Transform the SpatVector to a tibble
   x <- as_tibble(x)
@@ -118,7 +121,7 @@ for (i in 1:length(weather_files)) {
 
 # Merge and match the survey dates with the weather data --------------------
 # Define the dates before and after the survey for which weather data will also be extracted
-prepost_date = c(-3:3)
+prepost_date = c(-7:0)
 
 # Create the match_weather function
 # x contains the survey data with the survey dates and parish for each subject
@@ -189,16 +192,16 @@ weather_clean_2012 <- tmax_person_2012 %>%
 # Join the temperature data with the precipitation data
 weather_clean_2012 <- tmax_person_2012 %>% left_join(precip_person_2012, by = "person_id")
 
-# Hot canton dummies --------------------
 # Load Ecuador canton shapefiles
 unzip("data/Shapefiles.zip", exdir = "data")
-canton_shp <- st_read("data/gadm41_ECU_2.shp")
+canton_shp <- st_read("data/ecuador_Cantones.shp")
 canton_shp <- st_simplify(canton_shp, preserveTopology = TRUE, dTolerance = 100)
-canton_shp <- canton_shp %>% select(CC_2) %>% rename(canton_id = CC_2)
+canton_shp <- canton_shp %>% select(DPA_CANTON) %>% rename(canton_id = DPA_CANTON)
 
 # Calculate the mean daily maximum temperature for each canton in 2018
 canton_tmax_2018 <- rast("data/tmax.2018.nc")
 canton_tmax_2018 <- rotate(canton_tmax_2018)
+canton_shp <- st_transform(canton_shp, crs(canton_tmax_2018))
 canton_tmax_2018 <- crop(canton_tmax_2018, canton_shp, mask = TRUE)
 names <- names(canton_tmax_2018)
 time <- time(canton_tmax_2018)
@@ -210,8 +213,9 @@ canton_tmax_2018$tmax_mean <- rowMeans(canton_tmax_2018[,2:ncol(canton_tmax_2018
 canton_tmax_2018 <- select(canton_tmax_2018, canton_id, tmax_mean)
 
 # hot_canton: Cantons whose mean daily maximum temperature above the 75th percentile
-canton_tmax_2018 <- canton_tmax_2018 %>% 
-  mutate(hot_canton = ifelse(tmax_mean >= quantile(tmax_mean, 0.75, na.rm = TRUE), 1, 0))
+canton_tmax_2018 <- canton_tmax_2018 %>%
+  mutate(hot_canton = ifelse(tmax_mean >= quantile(tmax_mean, 0.75, na.rm = TRUE), 1, 0)) %>%
+  select(-tmax_mean)
 
 # Rainy canton dummies --------------------
 # Calculate the mean daily precipitation for each canton in 2018
@@ -228,8 +232,9 @@ canton_precip_2018$precip_mean <- rowMeans(canton_precip_2018[,2:ncol(canton_pre
 canton_precip_2018 <- select(canton_precip_2018, canton_id, precip_mean)
 
 # hot_canton: Cantons whose mean daily precipitation above the 75th percentile
-canton_precip_2018 <- canton_precip_2018 %>% 
-  mutate(rainy_canton = ifelse(precip_mean >= quantile(precip_mean, 0.75, na.rm = TRUE), 1, 0))
+canton_precip_2018 <- canton_precip_2018 %>%
+  mutate(rainy_canton = ifelse(precip_mean >= quantile(precip_mean, 0.75, na.rm = TRUE), 1, 0)) %>%
+  select(-precip_mean)
 
 # Hot/rainy parish dummies --------------------
 # This section calculates extreme weather conditions for each parish based on the average daily

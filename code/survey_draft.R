@@ -1,7 +1,7 @@
 # This R script contains data processing and cleaning operations for the Ensanut 2018 and Ensanut 2012
 # datasets. It loads the datasets and performs data transformations.
 
-# Version: Jul 23, 2023
+# Version: Sep 24, 2023
 # Author: Alonso Quijano-Ruiz
 
 # Install packages if necessary
@@ -95,7 +95,9 @@ ensanut_person_2018$indiv_income <- rowSums(ensanut_person_2018[,index_income], 
 
 # Calculate household income per capita
 ensanut_person_2018 <- ensanut_person_2018 %>% group_by(home_id) %>% 
-  mutate(income_percap = sum(indiv_income, na.rm = TRUE)/n())
+  mutate(income_percap = sum(indiv_income, na.rm = TRUE)/n()) %>% 
+  mutate(log_income_percap = ifelse(income_percap <= 1, 0, log(income_percap))) %>%
+  ungroup()
 
 ## Health variables --------------------
 # Disability id -> 1 if the person has a disability id
@@ -146,9 +148,10 @@ survey_clean_2018 <- survey_clean_2018 %>% select(
   # home infrastructure and demographic variables
    home_id, person_id, psu, strata, weight, survey_date, survey_weekday, survey_round, 
    region, province_id, canton_id, parish_id, ceiling, floor, walls, sex, age, ethnicity, 
-   marital_status, education, enrolled_in_school, employed, income_percap,
+   marital_status, education, enrolled_in_school, employed, log_income_percap,
    # health variables
-   disability_id, sick, got_care, prev_care, hospitalized, good_health, better_health)
+   disability_id, sick, got_care, prev_care, hospitalized, good_health, better_health) %>%
+  rename(income = log_income_percap)
 
 # Ensanut 2012 --------------------
 # Load the Ensanut 2012 individual and household data
@@ -217,7 +220,9 @@ ensanut_person_2012 <- ensanut_person_2012 %>% mutate(
 
 # Household income per capita
 ensanut_person_2012 <- ensanut_person_2012 %>% group_by(home_id) %>% 
-  mutate(income_percap = sum(pa08, na.rm = TRUE)/n())
+  mutate(income_percap = sum(pa08, na.rm = TRUE)/n()) %>% 
+  mutate(log_income_percap = ifelse(income_percap <= 1, 0, log(income_percap))) %>%
+  ungroup()
 
 ## Health variables --------------------
 # Disability id -> 1 if the person has a disability id
@@ -277,6 +282,7 @@ survey_clean_2012 <- survey_clean_2012 %>% select(
   # home infrastructure and demographic variables
   home_id, person_id, weight, survey_date, survey_weekday, survey_round, region, 
   province_id, canton_id, parish_id, ceiling, floor, walls, ac, fan, hot_water, 
-  sex, age, ethnicity, marital_status, education, enrolled_in_school, employed, income_percap,
+  sex, age, ethnicity, marital_status, education, enrolled_in_school, employed, log_income_percap,
   # health variables
-  sick, got_care, prev_care, hospitalized, good_health, better_health)
+  sick, got_care, prev_care, hospitalized, good_health, better_health) %>%
+  rename(income = log_income_percap)
